@@ -2,8 +2,6 @@ import { MdDelete, MdAddCircleOutline, MdRemoveCircleOutline } from "react-icons
 import { useCart } from "../../hooks/useCart";
 import { formatPrice } from "../../util/format";
 
-// import { useCart } from '../../hooks/useCart';
-// import { formatPrice } from '../../util/format';
 import { Container, ProductTable, Total } from "./styles";
 
 interface Product {
@@ -18,29 +16,23 @@ const Cart = (): JSX.Element => {
   const { cart, removeProduct, updateProductAmount } = useCart();
 
   const cartFormatted = cart.map((product) => ({
-    // TODO
+    ...product,
+    priceFormatted: formatPrice(product.price),
+    subTotal: formatPrice(product.price * product.amount),
   }));
+
   const total = formatPrice(
     cart.reduce((sumTotal, product) => {
-      sumTotal += product.price * product.amount;
-      return sumTotal;
+      return sumTotal + product.price * product.amount;
     }, 0)
   );
 
   function handleProductIncrement(product: Product) {
-    const productExists = cart.find((item) => item === product);
-
-    if (productExists) {
-      productExists.amount += 1;
-    }
+    updateProductAmount({ productId: product.id, amount: product.amount + 1 });
   }
 
   function handleProductDecrement(product: Product) {
-    const productExists = cart.find((item) => item === product);
-
-    if (productExists) {
-      productExists.amount -= 1;
-    }
+    updateProductAmount({ productId: product.id, amount: product.amount - 1 });
   }
 
   function handleRemoveProduct(productId: number) {
@@ -60,14 +52,14 @@ const Cart = (): JSX.Element => {
           </tr>
         </thead>
         <tbody>
-          {cart.map((product) => (
+          {cartFormatted.map((product) => (
             <tr data-testid="product" key={product.id}>
               <td>
                 <img src={product.image} alt={product.title} />
               </td>
               <td>
                 <strong>{product.title}</strong>
-                <span>{formatPrice(product.price)}</span>
+                <span>{product.priceFormatted}</span>
               </td>
               <td>
                 <div>
@@ -86,7 +78,7 @@ const Cart = (): JSX.Element => {
                 </div>
               </td>
               <td>
-                <strong>{formatPrice(product.price * product.amount)}</strong>
+                <strong>{product.subTotal}</strong>
               </td>
               <td>
                 <button type="button" data-testid="remove-product" onClick={() => handleRemoveProduct(product.id)}>

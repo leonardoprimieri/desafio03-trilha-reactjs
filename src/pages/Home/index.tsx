@@ -25,46 +25,16 @@ const Home = (): JSX.Element => {
   const [products, setProducts] = useState<ProductFormatted[]>([]);
   const { addProduct, cart } = useCart();
 
-  const cartItemsAmount = cart.reduce(
-    (sumAmount, product) => {
-      switch (product.id) {
-        case 1:
-          sumAmount[1] += product.amount;
-          break;
-        case 2:
-          sumAmount[2] += product.amount;
-          break;
-        case 3:
-          sumAmount[3] += product.amount;
-          break;
-        case 4:
-          sumAmount[4] += product.amount;
-          break;
-        case 5:
-          sumAmount[5] += product.amount;
-          break;
-        case 6:
-          sumAmount[6] = product.amount;
-          break;
-      }
-
-      return sumAmount;
-    },
-    {
-      1: 0,
-      2: 0,
-      3: 0,
-      4: 0,
-      5: 0,
-      6: 0,
-    } as CartItemsAmount
-  );
+  const cartItemsAmount = cart.reduce((sumAmount, product) => {
+    sumAmount[product.id] = product.amount;
+    return sumAmount;
+  }, {} as CartItemsAmount);
 
   useEffect(() => {
     async function loadProducts() {
-      const response = await api.get("products");
+      const response = await api.get<Product[]>("products");
       setProducts(
-        response.data.map((product: Product) => {
+        response.data.map((product) => {
           return {
             ...product,
             priceFormatted: formatPrice(product.price),
