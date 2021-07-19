@@ -34,10 +34,10 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
   const addProduct = async (productId: number) => {
     try {
+      const updatedCart = [...cart];
+
       const productStockList = await api.get(`/stock/${productId}`);
       const productStock = productStockList.data.amount;
-
-      const updatedCart = [...cart];
 
       const productIndex = updatedCart.findIndex((product) => productId === product.id);
 
@@ -64,13 +64,12 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
 
   const removeProduct = (productId: number) => {
     try {
-      // TODO
+      const filteredCart = cart.filter((product) => product.id !== productId);
+      setCart(filteredCart);
     } catch {
-      // TODO
+      toast.error("Erro na remoção do produto");
     }
   };
-
-  console.log(cart);
 
   const updateProductAmount = async ({ productId, amount }: UpdateProductAmount) => {
     try {
